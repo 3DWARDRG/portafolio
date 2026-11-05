@@ -1,0 +1,1764 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      EDWARD RODRÍGUEZ GONZÁLEZ // Portafolio Desarrollador de Software
+    </title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Google Fonts: Space Grotesk & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;1,300&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              mono: ['"JetBrains Mono"', "monospace"],
+              sans: ['"Space Grotesk"', "sans-serif"],
+            },
+            colors: {
+              void: "#050507",
+              abyss: "#090a10",
+              sand: "#f1f5f9",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #050507;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #525266;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #a1a1b5;
+      }
+
+      body {
+        background-color: #050507;
+        color: #f1f5f9;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+      }
+
+      canvas#webgl-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 10;
+        pointer-events: none;
+        filter: drop-shadow(0 0 22px rgba(255, 255, 255, 0.38))
+          drop-shadow(0 0 60px rgba(255, 255, 255, 0.18));
+        transition: filter 0.6s ease;
+      }
+
+      .hud-panel {
+        background: rgba(7, 8, 12, 0.78);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+      }
+
+      .cave-block-card {
+        background: rgba(8, 9, 14, 0.74);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .cave-block-card:hover {
+        background: rgba(16, 18, 28, 0.88);
+        border-color: rgba(255, 240, 215, 0.48);
+        transform: translateY(-4px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+      }
+    </style>
+  </head>
+  <body class="font-sans antialiased selection:bg-white selection:text-black">
+    <!-- WebGL Canvas -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- Top Navigation Header -->
+    <header
+      id="main-header"
+      class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 py-3 md:px-8 bg-[#050507]/80 backdrop-blur-md border-b border-white/10 transition-colors duration-500"
+    >
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-2.5 h-2.5 bg-amber-100 rounded-full shadow-[0_0_10px_#fff]"
+        ></div>
+        <div class="font-mono text-xs tracking-widest text-white font-semibold">
+          EDWARD RODRÍGUEZ
+          <span
+            id="stage-badge"
+            class="text-amber-200/70 font-normal hidden sm:inline"
+            >| 01. INICIO</span
+          >
+        </div>
+      </div>
+
+      <!-- Portfolio Quick Navigation -->
+      <nav
+        class="hidden md:flex items-center space-x-1 hud-panel px-2 py-1 rounded-full"
+      >
+        <button
+          onclick="scrollToFraction(0.0)"
+          class="stage-btn px-3 py-1 text-[10px] font-mono rounded-full bg-white text-black font-semibold transition-all cursor-pointer"
+          data-stage="0"
+        >
+          01. INICIO
+        </button>
+        <button
+          onclick="scrollToFraction(0.42)"
+          class="stage-btn px-3 py-1 text-[10px] font-mono rounded-full text-white/60 hover:text-white transition-all cursor-pointer"
+          data-stage="1"
+        >
+          02. PERFIL & EXPERIENCIA
+        </button>
+        <button
+          onclick="scrollToFraction(0.74)"
+          class="stage-btn px-3 py-1 text-[10px] font-mono rounded-full text-white/60 hover:text-white transition-all cursor-pointer"
+          data-stage="2"
+        >
+          03. PROYECTOS
+        </button>
+        <button
+          onclick="scrollToFraction(0.96)"
+          class="stage-btn px-3 py-1 text-[10px] font-mono rounded-full text-white/60 hover:text-white transition-all cursor-pointer"
+          data-stage="3"
+        >
+          04. CONTACTO
+        </button>
+      </nav>
+
+      <!-- Ambient Audio Button -->
+      <div class="flex items-center space-x-3">
+        <button
+          id="sound-toggle-btn"
+          class="hud-panel hover:border-white/40 flex items-center space-x-2.5 px-3.5 py-1.5 rounded-full text-xs font-mono text-white transition-all cursor-pointer"
+        >
+          <span class="relative flex h-2 w-2">
+            <span
+              id="sound-ping"
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-200 opacity-75 hidden"
+            ></span>
+            <span
+              id="sound-dot"
+              class="relative inline-flex rounded-full h-2 w-2 bg-zinc-500"
+            ></span>
+          </span>
+          <span id="sound-label">AUDIO AMBIENTAL: OFF</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Visual Controls HUD (Bottom Right) -->
+    <div
+      id="control-hud"
+      class="fixed bottom-5 right-5 z-50 transition-opacity duration-500"
+    >
+      <div
+        class="hud-panel p-3.5 rounded-xl w-64 font-mono text-xs space-y-2.5 shadow-2xl"
+      >
+        <div
+          class="flex items-center justify-between text-[10px] text-white/50 uppercase tracking-wider border-b border-white/10 pb-1.5"
+        >
+          <span>Ajuste Visual 3D</span>
+          <span id="scroll-pct-label" class="text-white font-semibold"
+            >0% SCROLL</span
+          >
+        </div>
+
+        <!-- Central Black Hole Lens Deformation Slider -->
+        <div>
+          <div class="flex justify-between text-[10px] text-white/70 mb-1">
+            <span>Deformación Central (Lente)</span>
+            <span id="lens-value" class="text-white">1.00x</span>
+          </div>
+          <input
+            id="lens-slider"
+            type="range"
+            min="0.65"
+            max="1.45"
+            step="0.05"
+            value="1.00"
+            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+          />
+        </div>
+
+        <!-- Grain Size Slider -->
+        <div>
+          <div class="flex justify-between text-[10px] text-white/70 mb-1">
+            <span>Tamaño de Grano</span>
+            <span id="size-value" class="text-white">2.0px</span>
+          </div>
+          <input
+            id="size-slider"
+            type="range"
+            min="1.2"
+            max="3.8"
+            step="0.1"
+            value="2.0"
+            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+          />
+        </div>
+
+        <!-- Cave Autonomous Flow Speed -->
+        <div>
+          <div class="flex justify-between text-[10px] text-white/70 mb-1">
+            <span>Velocidad de Animación</span>
+            <span id="speed-value" class="text-white">1.0x</span>
+          </div>
+          <input
+            id="speed-slider"
+            type="range"
+            min="0.2"
+            max="2.5"
+            step="0.1"
+            value="1.0"
+            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+          />
+        </div>
+
+        <!-- Pure White Brightness Slider -->
+        <div>
+          <div class="flex justify-between text-[10px] text-white/70 mb-1">
+            <span>Brillo Blanco</span>
+            <span id="wind-value" class="text-white">1.2x</span>
+          </div>
+          <input
+            id="wind-slider"
+            type="range"
+            min="0.5"
+            max="2.2"
+            step="0.1"
+            value="1.2"
+            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- PORTFOLIO SECTIONS                                                  -->
+    <!-- =================================================================== -->
+    <main class="relative z-30 w-full">
+      <!-- =============================================================== -->
+      <!-- SECCIÓN 01: PRESENTACIÓN PRINCIPAL                              -->
+      <!-- =============================================================== -->
+      <section
+        id="stage-0"
+        class="min-h-[135vh] flex flex-col justify-end px-6 md:px-16 lg:px-24 pt-28 pb-12 pointer-events-none"
+      >
+        <div
+          class="max-w-xl pointer-events-auto hud-panel p-6 sm:p-7 rounded-2xl border border-white/15 shadow-2xl"
+        >
+          <div
+            class="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-amber-200/90 mb-2"
+          >
+            <span
+              class="w-1.5 h-1.5 bg-amber-200 rounded-full animate-pulse"
+            ></span>
+            Zipaquirá, Colombia // Ingeniería de Sistemas & Desarrollo de
+            Software
+          </div>
+          <h1
+            class="text-2xl sm:text-4xl font-bold text-white tracking-tight leading-tight mb-2"
+          >
+            EDWARD RODRÍGUEZ GONZÁLEZ
+          </h1>
+          <p class="text-xs sm:text-sm font-mono text-amber-100/90 mb-3">
+            Desarrollador Backend, RPA & Aplicaciones Empresariales (Node.js ·
+            Python · React · Power Platform)
+          </p>
+          <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed mb-5">
+            Desarrollador de software con experiencia comprobable en la
+            digitalización de procesos corporativos, automatización de flujos de
+            trabajo y construcción de arquitecturas backend escalables con
+            integración de bases de datos SQL y NoSQL.
+          </p>
+          <div class="flex flex-wrap gap-2.5">
+            <button
+              onclick="scrollToFraction(0.42)"
+              class="px-4 py-2.5 rounded-lg bg-white text-black font-mono text-xs font-semibold hover:bg-zinc-200 transition-all cursor-pointer"
+            >
+              Ver Perfil y Experiencia ↓
+            </button>
+            <button
+              onclick="scrollToFraction(0.74)"
+              class="px-4 py-2.5 rounded-lg border border-white/25 text-white font-mono text-xs hover:bg-white/10 transition-all cursor-pointer"
+            >
+              Proyectos Destacados
+            </button>
+            <button
+              onclick="scrollToFraction(0.96)"
+              class="px-3.5 py-2.5 rounded-lg border border-amber-200/30 text-amber-100 font-mono text-xs hover:bg-amber-200/10 transition-all cursor-pointer"
+            >
+              Contacto Directo ✉
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Espacio de transición visual limpia hacia el interior -->
+      <div class="h-[45vh] pointer-events-none"></div>
+
+      <!-- =============================================================== -->
+      <!-- SECCIÓN 02: PERFIL PROFESIONAL, EXPERIENCIA & EDUCACIÓN         -->
+      <!-- =============================================================== -->
+      <section
+        id="stage-2"
+        class="min-h-[165vh] flex flex-col justify-center px-6 md:px-12 lg:px-20 py-24 pointer-events-none"
+      >
+        <div class="max-w-6xl mx-auto w-full space-y-6 pointer-events-auto">
+          <!-- Encabezado de Sección -->
+          <div
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/15 pb-4"
+          >
+            <div>
+              <span
+                class="font-mono text-[10px] uppercase tracking-widest text-amber-200/80 block"
+              >
+                02 // Trayectoria & Formación Académica
+              </span>
+              <h2
+                class="text-2xl sm:text-4xl font-light text-white tracking-tight mt-1"
+              >
+                Perfil Profesional, Experiencia & Educación
+              </h2>
+            </div>
+          </div>
+
+          <!-- Resumen Profesional + Experiencia en PROCTEK -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Resumen Profesional & Educación -->
+            <div
+              class="lg:col-span-6 cave-block-card p-6 sm:p-7 rounded-2xl flex flex-col justify-between space-y-5"
+            >
+              <div>
+                <div
+                  class="flex items-center justify-between font-mono text-[11px] text-amber-200/70 pb-3 border-b border-white/10"
+                >
+                  <span>PERFIL PROFESIONAL</span>
+                  <span class="text-white">BACKEND · RPA · FULL STACK</span>
+                </div>
+                <h3 class="text-lg sm:text-xl font-medium text-white mt-4 mb-2">
+                  Digitalización Corporativa, Arquitecturas Backend &
+                  Automatización
+                </h3>
+                <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                  Desarrollador Backend y RPA,
+                  <span class="text-white font-medium"
+                    >Tecnólogo en Desarrollo de Software</span
+                  >
+                  y estudiante de
+                  <span class="text-white font-medium"
+                    >Ingeniería de Sistemas (8.° semestre)</span
+                  >. Cuento con experiencia comprobable en la digitalización de
+                  procesos corporativos utilizando
+                  <span class="text-amber-100"
+                    >Microsoft Power Platform (Power Automate, Power Apps)</span
+                  >
+                  y la construcción de arquitecturas backend con
+                  <span class="text-amber-100">Node.js y Python</span>.
+                </p>
+                <p
+                  class="text-xs sm:text-sm text-zinc-400 leading-relaxed mt-2"
+                >
+                  Me especializo en integrar bases de datos (<span
+                    class="text-white"
+                    >SQL / NoSQL</span
+                  >) y desarrollar aplicaciones empresariales orientadas a
+                  eliminar cuellos de botella operativos, reducir tareas
+                  manuales y optimizar el análisis estratégico del negocio.
+                </p>
+              </div>
+
+              <!-- Educación, Certificaciones e Idiomas -->
+              <div class="pt-4 border-t border-white/10 space-y-3">
+                <div
+                  class="font-mono text-[10px] uppercase tracking-wider text-amber-200/80"
+                >
+                  Educación, Certificaciones e Idiomas
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                    <div class="font-mono text-[10px] text-amber-200">
+                      CUN — Zipaquirá
+                    </div>
+                    <div class="font-semibold text-white mt-0.5">
+                      Ingeniería de Sistemas
+                    </div>
+                    <div class="text-zinc-400 text-[11px]">
+                      8.° Semestre · Dic 2026
+                    </div>
+                  </div>
+                  <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                    <div class="font-mono text-[10px] text-amber-200">
+                      SENA — Zipaquirá
+                    </div>
+                    <div class="font-semibold text-white mt-0.5">
+                      Tecnólogo en Desarrollo de Software
+                    </div>
+                    <div class="text-zinc-400 text-[11px]">Junio 2026</div>
+                  </div>
+                  <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                    <div class="font-mono text-[10px] text-emerald-300">
+                      Google Coursera · Mayo 2023
+                    </div>
+                    <div class="font-semibold text-white mt-0.5">
+                      Soporte Técnico en TI
+                    </div>
+                    <div class="text-zinc-400 text-[11px]">
+                      Resolución de problemas y soporte
+                    </div>
+                  </div>
+                  <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                    <div class="font-mono text-[10px] text-sky-300">
+                      IDIOMAS
+                    </div>
+                    <div class="font-semibold text-white mt-0.5">
+                      Español: Nativo
+                    </div>
+                    <div class="text-zinc-300 text-[11px] font-mono">
+                      Inglés: Nivel B2
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Experiencia Profesional (PROCTEK) & Habilidades Técnicas -->
+            <div
+              class="lg:col-span-6 cave-block-card p-6 sm:p-7 rounded-2xl flex flex-col justify-between space-y-5"
+            >
+              <div>
+                <div
+                  class="flex items-center justify-between font-mono text-[11px] text-amber-200/70 pb-3 border-b border-white/10"
+                >
+                  <span>EXPERIENCIA PROFESIONAL</span>
+                  <span class="text-emerald-300">AGO 2025 — FEB 2026</span>
+                </div>
+
+                <div class="mt-4">
+                  <div
+                    class="flex flex-wrap items-baseline justify-between gap-2"
+                  >
+                    <h3 class="text-lg sm:text-xl font-semibold text-white">
+                      PROCTEK — Desarrollador de Software (PMO)
+                    </h3>
+                    <span
+                      class="font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-white/10 text-amber-100"
+                      >Automatización & PMO</span
+                    >
+                  </div>
+                  <ul
+                    class="mt-3 space-y-2 text-xs sm:text-sm text-zinc-300 list-disc list-inside leading-relaxed"
+                  >
+                    <li>
+                      Desarrollo de aplicaciones empresariales para optimización
+                      de procesos internos.
+                    </li>
+                    <li>
+                      Automatización de flujos de trabajo (RPA) y digitalización
+                      de procesos corporativos.
+                    </li>
+                    <li>
+                      Levantamiento y análisis de requerimientos junto a
+                      usuarios y líderes de proyecto.
+                    </li>
+                    <li>
+                      Elaboración de documentación funcional y soporte
+                      especializado a aplicaciones internas.
+                    </li>
+                    <li>
+                      Participación activa en iniciativas de mejora continua y
+                      eficiencia operativa.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Habilidades / Stack Completo -->
+              <div class="pt-4 border-t border-white/10">
+                <div
+                  class="flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-amber-200/80 mb-2.5"
+                >
+                  <span>Stack Tecnológico & Herramientas</span>
+                  <span>21 TECNOLOGÍAS</span>
+                </div>
+                <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
+                  <span
+                    class="px-2.5 py-1 rounded-md bg-white/15 text-white font-medium"
+                    >Node.js</span
+                  >
+                  <span
+                    class="px-2.5 py-1 rounded-md bg-white/15 text-white font-medium"
+                    >Python</span
+                  >
+                  <span
+                    class="px-2.5 py-1 rounded-md bg-white/15 text-white font-medium"
+                    >TypeScript</span
+                  >
+                  <span
+                    class="px-2.5 py-1 rounded-md bg-white/15 text-white font-medium"
+                    >JavaScript</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >React.js</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >React Native</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >Expo</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >Express.js</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >Electron.js</span
+                  >
+                  <span
+                    class="px-2.5 py-1 rounded-md bg-amber-200/20 text-amber-100 border border-amber-200/30"
+                    >Power Automate</span
+                  >
+                  <span
+                    class="px-2.5 py-1 rounded-md bg-amber-200/20 text-amber-100 border border-amber-200/30"
+                    >Power Apps</span
+                  >
+                  <span
+                    class="px-2.5 py-1 rounded-md bg-amber-200/20 text-amber-100 border border-amber-200/30"
+                    >SharePoint</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >PostgreSQL</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >MongoDB</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >APIs REST</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >JWT</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >HTML5 & CSS3</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >Git & GitHub</span
+                  >
+                  <span class="px-2.5 py-1 rounded-md bg-white/10 text-zinc-200"
+                    >Linux</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- SECCIÓN 03: PROYECTOS DESTACADOS                                -->
+      <!-- =============================================================== -->
+      <section
+        id="stage-3"
+        class="min-h-[145vh] flex flex-col justify-center px-6 md:px-16 lg:px-24 py-24 pointer-events-none"
+      >
+        <div class="max-w-6xl mx-auto w-full space-y-8 pointer-events-auto">
+          <div
+            class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-white/15 pb-4"
+          >
+            <div>
+              <span
+                class="font-mono text-[10px] uppercase tracking-widest text-amber-200/80 block"
+              >
+                03 // Portafolio de Desarrollo
+              </span>
+              <h2
+                class="text-2xl sm:text-4xl font-light text-white tracking-tight mt-1"
+              >
+                Proyectos Destacados
+              </h2>
+            </div>
+          </div>
+
+          <!-- 3 Real Project Cards from Edward's CV -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Project 1: AutoSim -->
+            <div
+              class="cave-block-card p-6 rounded-2xl flex flex-col justify-between min-h-[310px]"
+            >
+              <div>
+                <div
+                  class="flex justify-between items-center font-mono text-[11px] text-amber-200/80 pb-3 border-b border-white/10"
+                >
+                  <span>PROYECTO // 01</span>
+                  <span class="text-white">DISTRIBUTED DESKTOP</span>
+                </div>
+                <h3 class="text-xl font-semibold text-white mt-5 mb-2">
+                  AutoSim
+                </h3>
+                <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                  Aplicación empresarial de escritorio diseñada para coordinar,
+                  ejecutar y monitorear simulaciones distribuidas de forma
+                  concurrente en múltiples servidores Windows.
+                </p>
+              </div>
+              <div class="pt-6">
+                <div
+                  class="flex flex-wrap gap-1.5 font-mono text-[10px] text-white/90 mb-4"
+                >
+                  <span class="px-2.5 py-0.5 bg-white/15 rounded"
+                    >React.js</span
+                  >
+                  <span class="px-2.5 py-0.5 bg-white/15 rounded"
+                    >Electron.js</span
+                  >
+                  <span class="px-2.5 py-0.5 bg-white/15 rounded">Node.js</span>
+                  <span class="px-2.5 py-0.5 bg-white/10 rounded"
+                    >Windows Servers</span
+                  >
+                </div>
+                <div
+                  class="font-mono text-xs text-amber-100 flex items-center justify-between pt-2 border-t border-white/10"
+                >
+                  <span>Coordinación Distribuida</span>
+                  <span>01 →</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project 2: Money Mentor -->
+            <div
+              class="cave-block-card p-6 rounded-2xl flex flex-col justify-between min-h-[310px]"
+            >
+              <div>
+                <div
+                  class="flex justify-between items-center font-mono text-[11px] text-amber-200/80 pb-3 border-b border-white/10"
+                >
+                  <span>PROYECTO // 02</span>
+                  <span class="text-white">MOBILE FINTECH</span>
+                </div>
+                <h3 class="text-xl font-semibold text-white mt-5 mb-2">
+                  Money Mentor
+                </h3>
+                <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                  Aplicación móvil enfocada en educación financiera, seguimiento
+                  detallado de gastos y herramientas interactivas para el
+                  control y análisis financiero personal.
+                </p>
+              </div>
+              <div class="pt-6">
+                <div
+                  class="flex flex-wrap gap-1.5 font-mono text-[10px] text-white/90 mb-4"
+                >
+                  <span class="px-2.5 py-0.5 bg-white/15 rounded"
+                    >React Native</span
+                  >
+                  <span class="px-2.5 py-0.5 bg-white/15 rounded">Expo</span>
+                  <span class="px-2.5 py-0.5 bg-white/15 rounded">Node.js</span>
+                  <span class="px-2.5 py-0.5 bg-white/10 rounded"
+                    >Control Financiero</span
+                  >
+                </div>
+                <div
+                  class="font-mono text-xs text-amber-100 flex items-center justify-between pt-2 border-t border-white/10"
+                >
+                  <span>Arquitectura Móvil</span>
+                  <span>02 →</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project 3: Aplicaciones MERN -->
+            <div
+              class="cave-block-card p-6 rounded-2xl flex flex-col justify-between min-h-[310px]"
+            >
+              <div>
+                <div
+                  class="flex justify-between items-center font-mono text-[11px] text-amber-200/80 pb-3 border-b border-white/10"
+                >
+                  <span>PROYECTO // 03</span>
+                  <span class="text-white">FULL STACK & APIS</span>
+                </div>
+                <h3 class="text-xl font-semibold text-white mt-5 mb-2">
+                  Aplicaciones MERN & Backend
+                </h3>
+                <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                  Desarrollo de aplicaciones empresariales CRUD con
+                  autenticación segura mediante JWT, consumo e integración de
+                  APIs REST y gestión híbrida de bases de datos SQL y NoSQL.
+                </p>
+              </div>
+              <div class="pt-6">
+                <div
+                  class="flex flex-wrap gap-1.5 font-mono text-[10px] text-white/90 mb-4"
+                >
+                  <span class="px-2.5 py-0.5 bg-white/15 rounded"
+                    >MongoDB & PostgreSQL</span
+                  >
+                  <span class="px-2.5 py-0.5 bg-white/15 rounded"
+                    >Express & Node.js</span
+                  >
+                  <span class="px-2.5 py-0.5 bg-white/15 rounded"
+                    >React.js</span
+                  >
+                  <span class="px-2.5 py-0.5 bg-white/10 rounded"
+                    >JWT / REST</span
+                  >
+                </div>
+                <div
+                  class="font-mono text-xs text-amber-100 flex items-center justify-between pt-2 border-t border-white/10"
+                >
+                  <span>Seguridad & Escalabilidad</span>
+                  <span>03 →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- SECCIÓN 04: CONTACTO DIRECTO (CON PARTÍCULAS REDUCIDAS AL FINAL)-->
+      <!-- =============================================================== -->
+      <section
+        id="stage-4"
+        class="min-h-[115vh] flex flex-col justify-center items-center px-6 md:px-16 lg:px-24 pb-16 pointer-events-none"
+      >
+        <div class="max-w-5xl mx-auto w-full space-y-6 pointer-events-auto">
+          <div
+            class="cave-block-card p-6 sm:p-10 rounded-2xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 shadow-2xl"
+          >
+            <div class="space-y-2 max-w-2xl">
+              <div
+                class="font-mono text-[10px] text-amber-200/80 uppercase tracking-widest"
+              >
+                04 // CONTACTO DIRECTO — EDWARD RODRÍGUEZ GONZÁLEZ
+              </div>
+              <h3 class="text-xl sm:text-3xl font-medium text-white">
+                ¿Listo para optimizar procesos o construir tu próxima
+                plataforma?
+              </h3>
+              <div
+                class="flex flex-wrap gap-x-6 gap-y-1 font-mono text-xs text-zinc-300 pt-2"
+              >
+                <span>📍 Zipaquirá, Colombia</span>
+                <span>📞 (+57) 3125344494</span>
+                <span>✉️ edwardr185@gmail.com</span>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2.5 shrink-0">
+              <a
+                href="mailto:edwardr185@gmail.com"
+                class="px-4 py-2.5 rounded-lg bg-white text-black font-mono text-xs font-semibold hover:bg-zinc-200 transition-all"
+              >
+                Enviar Correo ✉
+              </a>
+              <button
+                onclick="copyEmail('edwardr185@gmail.com')"
+                class="px-3.5 py-2.5 rounded-lg border border-white/25 font-mono text-xs text-white hover:bg-white/10 transition-all cursor-pointer"
+              >
+                <span id="copy-label">Copiar Email</span>
+              </button>
+              <a
+                href="https://www.linkedin.com/in/3dwardrg"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="px-3.5 py-2.5 rounded-lg border border-white/25 font-mono text-xs text-white hover:bg-white/10 transition-all"
+              >
+                LinkedIn ↗
+              </a>
+              <a
+                href="https://github.com/3DWARDRG"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="px-3.5 py-2.5 rounded-lg border border-white/25 font-mono text-xs text-white hover:bg-white/10 transition-all"
+              >
+                GitHub ↗
+              </a>
+            </div>
+          </div>
+
+          <div class="flex justify-center pt-4">
+            <button
+              onclick="scrollToFraction(0.0)"
+              class="px-5 py-2.5 rounded-lg hud-panel text-white hover:bg-white hover:text-black font-mono text-xs font-semibold transition-all cursor-pointer"
+            >
+              ↑ Volver al Inicio
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- THREE.JS + ICONIC FRONTAL GARGANTUA + CENTRAL VOID + DUNE CAVE            -->
+    <!-- ========================================================================= -->
+    <script>
+      const PARTICLE_COUNT = 560000;
+      let scene, camera, renderer, pointsGeometry, pointsMaterial, pointsMesh;
+      let clock;
+      let mouse = new THREE.Vector2(-999, -999);
+      let targetMouse = new THREE.Vector2(-999, -999);
+      let targetScroll = 0.0;
+      let currentScroll = 0.0;
+      let wavePulse = 0.0;
+      const STAR_COUNT = 1500;
+      let backgroundStars;
+      const starVel = new Float32Array(STAR_COUNT);
+      const starOrigR = new Float32Array(STAR_COUNT);
+
+      // Sintetizador ambiental Web Audio API para el botón de música
+      class CosmicAmbientArpeggiator {
+        constructor() {
+          this.ctx = null;
+          this.isPlaying = false;
+          this.intervalId = null;
+          this.masterGain = null;
+          this.delayNode = null;
+          this.scale = [349.23, 392.0, 440.0, 493.88, 523.25, 659.25, 783.99, 880.0];
+          this.bassRoots = [174.61, 130.81, 196.0, 220.0];
+          this.step = 0;
+        }
+        init() {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+          this.masterGain = this.ctx.createGain();
+          this.masterGain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          this.delayNode = this.ctx.createDelay(2.0);
+          this.delayNode.delayTime.setValueAtTime(0.48, this.ctx.currentTime);
+          const feedback = this.ctx.createGain();
+          feedback.gain.setValueAtTime(0.38, this.ctx.currentTime);
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = "lowpass";
+          filter.frequency.setValueAtTime(1400, this.ctx.currentTime);
+          this.delayNode.connect(filter);
+          filter.connect(feedback);
+          feedback.connect(this.delayNode);
+          this.masterGain.connect(this.ctx.destination);
+          this.delayNode.connect(this.masterGain);
+        }
+        playNote(freq, duration = 3.2, vol = 0.08, isWarmPad = false) {
+          if (!this.ctx || !this.isPlaying) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = isWarmPad ? "sine" : "triangle";
+          osc.frequency.setValueAtTime(freq, now);
+          const lp = this.ctx.createBiquadFilter();
+          lp.type = "lowpass";
+          lp.frequency.setValueAtTime(isWarmPad ? 380 : 1600, now);
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.linearRampToValueAtTime(vol, now + (isWarmPad ? 0.6 : 0.08));
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+          osc.connect(lp);
+          lp.connect(gain);
+          gain.connect(this.masterGain);
+          gain.connect(this.delayNode);
+          osc.start(now);
+          osc.stop(now + duration + 0.15);
+        }
+        start() {
+          this.playNote(174.61, 5.5, 0.1, true);
+          this.playNote(440.0, 3.5, 0.06, false);
+          const arpPattern = [0, 2, 4, 5, 4, 2, 1, 3, 4, 6, 5, 3];
+          this.intervalId = setInterval(() => {
+            if (!this.isPlaying) return;
+            if (this.step % 8 === 0) {
+              const root = this.bassRoots[(this.step / 8) % this.bassRoots.length];
+              this.playNote(root, 6.0, 0.1, true);
+              this.playNote(root * 1.5, 5.5, 0.05, true);
+            }
+            const idx = arpPattern[this.step % arpPattern.length];
+            this.playNote(this.scale[idx], 2.8, 0.06, false);
+            this.step++;
+          }, 560);
+        }
+        toggle() {
+          if (!this.ctx) this.init();
+          if (this.ctx.state === "suspended") this.ctx.resume();
+          this.isPlaying = !this.isPlaying;
+          if (this.isPlaying) this.start();
+          else clearInterval(this.intervalId);
+          return this.isPlaying;
+        }
+      }
+
+      const cosmicAudio = new CosmicAmbientArpeggiator();
+      document.getElementById("sound-toggle-btn").addEventListener("click", () => {
+        const active = cosmicAudio.toggle();
+        const dot = document.getElementById("sound-dot");
+        const ping = document.getElementById("sound-ping");
+        const label = document.getElementById("sound-label");
+        if (active) {
+          dot.classList.replace("bg-zinc-500", "bg-amber-200");
+          ping.classList.remove("hidden");
+          label.textContent = "AUDIO AMBIENTAL: ON";
+        } else {
+          dot.classList.replace("bg-amber-200", "bg-zinc-500");
+          ping.classList.add("hidden");
+          label.textContent = "AUDIO AMBIENTAL: OFF";
+        }
+      });
+
+      // =========================================================================
+      // 2. PARTICLE ATTRIBUTE GENERATOR (SIN PORTALES MONOLÍTICOS)
+      // =========================================================================
+      function buildParticleAttributes(count) {
+        const aBHParams = new Float32Array(count * 4);
+        const aCavePos = new Float32Array(count * 3);
+        const aSingularityPos = new Float32Array(count * 3);
+        const aSeed = new Float32Array(count);
+        const aClusterId = new Float32Array(count);
+
+        for (let i = 0; i < count; i++) {
+          const i3 = i * 3;
+          const i4 = i * 4;
+          const seed = Math.random();
+          aSeed[i] = seed;
+
+          // -------------------------------------------------------------------
+          // A. UNIFIED CONTINUOUS GARGANTUA STREAMLINES (NO MISALIGNED RINGS)
+          // -------------------------------------------------------------------
+          const pRand = Math.random();
+          const angle = Math.random() * Math.PI * 2;
+
+          let rawU = Math.pow(Math.random(), 1.55);
+          rawU += Math.sin(rawU * 28.0 * Math.PI * 2.0) * 0.0045;
+          const u = Math.max(0.0, Math.min(1.0, rawU));
+
+          let branchAndMode;
+          let thicknessOffset;
+
+          if (pRand < 0.12) {
+            branchAndMode = 5.0;
+            thicknessOffset = (Math.random() - 0.5) * 0.028;
+          } else if (pRand < 0.6) {
+            branchAndMode = 1.0;
+            thicknessOffset = (Math.random() - 0.5) * (0.035 + u * 0.14);
+          } else {
+            branchAndMode = -0.88;
+            thicknessOffset = (Math.random() - 0.5) * (0.035 + u * 0.14);
+          }
+
+          aBHParams[i4 + 0] = u;
+          aBHParams[i4 + 1] = angle;
+          aBHParams[i4 + 2] = branchAndMode;
+          aBHParams[i4 + 3] = thicknessOffset;
+
+          // -------------------------------------------------------------------
+          // B. INSIDE EVENT HORIZON: CAVE DUNES (90%) + PASSING ANOMALIES (10%)
+          // -------------------------------------------------------------------
+          if (i < count * 0.9) {
+            aClusterId[i] = 0.0;
+            const caveX = (Math.random() - 0.5) * 24.0;
+            const isCeiling = Math.random() < 0.42 ? 1.0 : -1.0;
+            const caveZ = (Math.random() - 0.5) * 36.0;
+
+            aCavePos[i3 + 0] = caveX;
+            aCavePos[i3 + 1] = isCeiling;
+            aCavePos[i3 + 2] = caveZ;
+          } else {
+            const clusterIdx = 1 + (i % 6);
+            aClusterId[i] = clusterIdx;
+
+            let lx = 0,
+              ly = 0,
+              lz = 0;
+            if (clusterIdx % 3 === 1) {
+              const edge = i % 12;
+              const t = Math.random();
+              const verts = [
+                [0, 1.3, 0],
+                [0, -1.3, 0],
+                [1.3, 0, 0],
+                [-1.3, 0, 0],
+                [0, 0, 1.3],
+                [0, 0, -1.3],
+              ];
+              const pairs = [
+                [0, 2],
+                [0, 3],
+                [0, 4],
+                [0, 5],
+                [1, 2],
+                [1, 3],
+                [1, 4],
+                [1, 5],
+                [2, 4],
+                [4, 3],
+                [3, 5],
+                [5, 2],
+              ];
+              const pA = verts[pairs[edge][0]];
+              const pB = verts[pairs[edge][1]];
+              lx = pA[0] + (pB[0] - pA[0]) * t + (Math.random() - 0.5) * 0.06;
+              ly = pA[1] + (pB[1] - pA[1]) * t + (Math.random() - 0.5) * 0.06;
+              lz = pA[2] + (pB[2] - pA[2]) * t + (Math.random() - 0.5) * 0.06;
+            } else if (clusterIdx % 3 === 2) {
+              const u = Math.random() * Math.PI * 2;
+              const ringChoice = i % 2;
+              const R = 1.25;
+              if (ringChoice === 0) {
+                lx = Math.cos(u) * R + (Math.random() - 0.5) * 0.08;
+                ly = Math.sin(u) * R + (Math.random() - 0.5) * 0.08;
+                lz = (Math.random() - 0.5) * 0.08;
+              } else {
+                lx = Math.cos(u) * (R * 0.75);
+                ly = (Math.random() - 0.5) * 0.08;
+                lz = Math.sin(u) * (R * 0.75);
+              }
+            } else {
+              const face = i % 12;
+              const t = (Math.random() - 0.5) * 2.0;
+              const w = 0.65,
+                h = 1.65,
+                d = 0.35;
+              if (face < 4) {
+                lx = (face % 2 === 0 ? 1 : -1) * w;
+                ly = t * h;
+                lz = (face < 2 ? 1 : -1) * d;
+              } else if (face < 8) {
+                lx = t * w;
+                ly = (face % 2 === 0 ? 1 : -1) * h;
+                lz = (face < 6 ? 1 : -1) * d;
+              } else {
+                lx = (face % 2 === 0 ? 1 : -1) * w;
+                ly = (face < 10 ? 1 : -1) * h;
+                lz = t * d;
+              }
+            }
+
+            aCavePos[i3 + 0] = lx;
+            aCavePos[i3 + 1] = ly;
+            aCavePos[i3 + 2] = lz;
+          }
+
+          // -------------------------------------------------------------------
+          // C. ETAPA FINAL: POLVO ESTELAR ESPACIOSO (SIN MURO SATURADO)
+          // -------------------------------------------------------------------
+          aSingularityPos[i3 + 0] = (Math.random() - 0.5) * 22.0;
+          aSingularityPos[i3 + 1] = (Math.random() - 0.5) * 14.0;
+          aSingularityPos[i3 + 2] = (Math.random() - 0.5) * 12.0 - 2.0;
+        }
+
+        return {
+          aBHParams,
+          aCavePos,
+          aSingularityPos,
+          aSeed,
+          aClusterId,
+        };
+      }
+
+      // =========================================================================
+      // 3. GLSL VERTEX & FRAGMENT SHADERS (GARGANTUA INTACTO + FINAL REDUCIDO)
+      // =========================================================================
+      const vertexShader = `
+      uniform float uTime;
+      uniform float uScroll;
+      uniform float uSpeed;
+      uniform float uGlowBoost;
+      uniform float uGrainSize;
+      uniform float uCentralLens;
+      uniform float uWavePulse;
+      uniform vec2 uMouse;
+      uniform float uPixelRatio;
+
+      attribute vec4 aBHParams;
+      attribute vec3 aCavePos;
+      attribute vec3 aSingularityPos;
+      attribute float aSeed;
+      attribute float aClusterId;
+
+      varying float vBrightness;
+      varying float vSeed;
+      varying float vWhiteout;
+      varying float vFadeBlack;
+      varying float vAngle;   // Dirección tangencial orbital en pantalla
+      varying float vStretch; // Factor de espaguetización (1.0 = círculo, >1.0 = filamento estirado)
+
+      mat2 rot2D(float a) {
+        float s = sin(a), c = cos(a);
+        return mat2(c, -s, s, c);
+      }
+
+      float duneWaves(vec2 p, float t) {
+        float w1 = sin(p.x * 0.75 + p.y * 0.55 + t * 1.4) * 0.65;
+        float w2 = cos(p.x * 1.6 - p.y * 1.1 + t * 0.9) * 0.32;
+        float w3 = sin(p.x * 3.1 + p.y * 2.4 - t * 1.8) * 0.14;
+        return w1 + w2 + w3;
+      }
+
+      void main() {
+        vSeed = aSeed;
+        vFadeBlack = 1.0;
+
+        // ---------------------------------------------------------------------
+        // POSITION 1: SEAMLESS UNIFIED GARGANTUA BLACK HOLE (PURE WHITE)
+        // ---------------------------------------------------------------------
+        float u = aBHParams.x;             // Concentric streamline [0..1]
+        float baseAngle = aBHParams.y;     // Initial angle [0..2PI]
+        float branchMode = aBHParams.z;    // +1.0 = Upper, -0.88 = Lower, +2.0 = Inner Photon Ring
+        float thick = aBHParams.w;
+
+        // Central Black Hole Void Radius controlled by uCentralLens
+        float rVoid = 1.75 * uCentralLens;
+
+        // Halo radius around the central void & horizontal wing extension
+        float rHalo = rVoid * 1.08 + u * 1.48 * uCentralLens;
+        float wWing = 0.25 + pow(u, 1.35) * 5.8;
+        float rEquatorial = rHalo + wWing;
+
+        // Keplerian differential orbital speed (inner streamlines orbit faster)
+        float angularVel = (1.65 / pow(1.0 + u * 2.2, 1.15)) * uSpeed;
+        float currentAngle = baseAngle + uTime * angularVel;
+        float ca = cos(currentAngle);
+        float sa = sin(currentAngle);
+
+        vec3 bhPos = vec3(0.0);
+        float intensity = 1.0;
+
+        if (branchMode > 1.5) {
+          // INNER RAZOR-SHARP PHOTON RING
+          float rPhoton = rVoid * (0.97 + u * 0.05);
+          bhPos = vec3(ca * rPhoton, sa * rPhoton, thick);
+          intensity = 1.65;
+        } else {
+          if (sa >= 0.0) {
+            // FRONT HORIZONTAL EQUATORIAL RING (passes in front of the black hole)
+            float xFront = rEquatorial * ca;
+            float yFront = -sa * (0.025 + u * 0.085) + thick * 0.55;
+            float zFront = sa * rEquatorial * 0.65 + 0.35;
+            bhPos = vec3(xFront, yFront, zFront);
+            // --- MODULACIÓN DE CORTINAS Y PLIEGUES DE GAS ---
+            float gasCurtain = sin(currentAngle * 6.0 + u * 18.0 - uTime * 0.8) * 0.06;
+            float gasFlutter = cos(currentAngle * 14.0 - u * 28.0 + uTime * 1.2) * 0.03;
+            float totalGasWave = (gasCurtain + gasFlutter) * (1.0 - smoothstep(0.7, 1.0, u));
+
+            thick += totalGasWave * (0.8 + 1.4 * u);
+            float centerBoost = exp(-abs(xFront) * 0.28);
+            float innerBoost = 1.0 - u * 0.65;
+            intensity = 0.95 + centerBoost * 0.95 + innerBoost * 0.55;
+          } else {
+            // BACK HALF OF THE SAME RING -> BENT AROUND THE CENTRAL BLACK HOLE VOID
+            float s = -sa;
+            float wingDecay = pow(1.0 - s, 2.35);
+            float rCurrent = rHalo + wWing * wingDecay;
+            float archShape = pow(s, 1.0 + 0.85 * pow(1.0 - s, 2.0));
+
+            float xBack = rCurrent * ca;
+            float yBack = branchMode * rHalo * archShape + thick * 0.65;
+            float zBack = -s * 0.45 + thick;
+
+            bhPos = vec3(xBack, yBack, zBack);
+
+            // Radial outward lensing push
+            float distCenter = length(bhPos.xy);
+            float lensField = rVoid * 1.45;
+            if (distCenter < lensField) {
+              float push = pow(1.0 - clamp(distCenter / lensField, 0.0, 1.0), 1.85);
+              vec2 radialDir = normalize(bhPos.xy + vec2(0.0001));
+              bhPos.xy += radialDir * push * (rVoid * 0.42);
+              intensity += push * 0.95;
+            }
+
+            intensity *= (0.75 + (1.0 - u) * 0.85);
+
+            if (length(bhPos.xy) < rVoid * 0.95) {
+              vFadeBlack = 0.0;
+            }
+          }
+        }
+
+        // Gravitational wave ripple pulse
+        if (uWavePulse > 0.01) {
+          bhPos += normalize(bhPos + vec3(0.001)) * sin(length(bhPos.xy) * 4.0 - uTime * 10.0) * uWavePulse * 0.45;
+        }
+
+        // ---------------------------------------------------------------------
+        // EVENT HORIZON PLUNGE & SPAGHETTIFICATION WARP (Scroll 0.18 - 0.38)
+        // ---------------------------------------------------------------------
+        float plungeT = smoothstep(0.16, 0.36, uScroll);
+        vec3 plungedBHPos = bhPos;
+        plungedBHPos.xy *= (1.0 + plungeT * 2.4);
+        plungedBHPos.z += plungeT * (10.5 + fract(aSeed * 13.7) * 8.0);
+
+        // ---------------------------------------------------------------------
+        // POSITION 2: INSIDE THE EVENT HORIZON — AUTONOMOUS DUNE CAVE + PASSING OBJECTS
+        // ---------------------------------------------------------------------
+        vec3 caveWorldPos = vec3(0.0);
+        float caveHighlight = 0.85;
+
+        if (aClusterId < 0.5) {
+          float zDepth = 36.0;
+          float zFlow = mod(aCavePos.z + uTime * 4.2 * uSpeed, zDepth) - 24.0;
+          float xCoord = aCavePos.x;
+          float floorOrCeil = aCavePos.y;
+
+          float h = duneWaves(vec2(xCoord * 0.55, (zFlow - uTime * 4.2 * uSpeed) * 0.45), uTime * 0.6);
+          float wallCurve = pow(abs(xCoord) / 12.0, 2.0) * 1.65;
+
+          float yCoord;
+          if (floorOrCeil < 0.0) {
+            yCoord = -2.45 + h * 0.78 + wallCurve;
+          } else {
+            yCoord = 2.65 - h * 0.65 - wallCurve;
+          }
+
+          caveWorldPos = vec3(xCoord, yCoord, zFlow);
+          caveHighlight = 0.65 + 0.35 * clamp((h + 1.0) * 0.5, 0.0, 1.0);
+        } else {
+          float cid = aClusterId;
+          float cycleLength = 34.0;
+          float speedMult = (3.8 + cid * 0.55) * uSpeed;
+          float zTravel = mod(uTime * speedMult + cid * 5.7, cycleLength) - 24.0;
+
+          float centerX = sin(cid * 2.1 + floor((uTime * speedMult + cid * 5.7) / cycleLength)) * 3.6;
+          float centerY = cos(cid * 1.7) * 0.85;
+
+          vec3 localP = aCavePos;
+          localP.xz = rot2D(uTime * 0.7 + cid) * localP.xz;
+          localP.xy = rot2D(uTime * 0.5 - cid) * localP.xy;
+
+          caveWorldPos = vec3(centerX, centerY, zTravel) + localP;
+          caveHighlight = 1.35;
+        }
+
+        // ---------------------------------------------------------------------
+        // POSITION 3: FINAL DEL SCROLL — POLVO CÓSMICO CON PARTÍCULAS REDUCIDAS
+        // ---------------------------------------------------------------------
+        vec3 singPos = aSingularityPos;
+        singPos.x += sin(uTime * 0.5 + aSeed * 50.0) * 0.25;
+        singPos.y += cos(uTime * 0.4 + aSeed * 40.0) * 0.25;
+
+        // ---------------------------------------------------------------------
+        // CONTINUOUS REVERSIBLE SCROLL BLENDING (SIN PORTALES MONOLÍTICOS)
+        // ---------------------------------------------------------------------
+        float toCave = smoothstep(0.24, 0.42, uScroll);
+        float toSingularity = smoothstep(0.84, 0.96, uScroll);
+
+        float stagger = aSeed * 0.12;
+        float t1 = smoothstep(0.0, 1.0, clamp((toCave - stagger) / (1.0 - stagger), 0.0, 1.0));
+        float t3 = smoothstep(0.0, 1.0, clamp((toSingularity - stagger) / (1.0 - stagger), 0.0, 1.0));
+
+        if (t1 > 0.15) {
+          vFadeBlack = 1.0;
+        }
+
+        // Reducción del 85% de las partículas al llegar al final del scroll
+        if (t3 > 0.05 && aSeed > 0.15) {
+          vFadeBlack = 1.0 - smoothstep(0.05, 0.65, t3);
+        }
+
+        vec3 finalPos = mix(plungedBHPos, caveWorldPos, t1);
+        finalPos = mix(finalPos, singPos, t3);
+
+        float transitionEnergy = sin(t1 * 3.14159) + sin(t3 * 3.14159) * 0.4;
+        vec3 swirl = vec3(
+          sin(uTime * 2.0 + aSeed * 12.0),
+          cos(uTime * 1.8 + aSeed * 15.0),
+          sin(uTime * 2.4 - aSeed * 9.0)
+        ) * transitionEnergy * 0.55;
+
+        finalPos += swirl;
+
+        // ---------------------------------------------------------------------
+        // INTERACTIVE CURSOR BLACK HOLE LENSING & VOID
+        // ---------------------------------------------------------------------
+        vec2 worldMouse = uMouse * vec2(6.2, 3.9);
+        float distMouse = distance(finalPos.xy, worldMouse);
+        float mouseRadius = 1.35 * (1.0 - t3 * 0.35);
+        if (distMouse < mouseRadius) {
+          float push = pow(1.0 - distMouse / mouseRadius, 2.0);
+          vec2 dir = normalize(finalPos.xy - worldMouse + vec2(0.0001));
+          finalPos.xy += dir * push * 0.85;
+          intensity += push * 0.85;
+        }
+
+        vBrightness = mix(intensity * uGlowBoost, caveHighlight, t1);
+        vWhiteout = 0.0;
+
+        // ---------------------------------------------------------------------
+        // ESPAGUETIZACIÓN ORBITAL RELATIVISTA + PROYECCIÓN
+        // ---------------------------------------------------------------------
+        vec3 tangent = vec3(-sa, 0.0, ca);
+        if (sa < 0.0) {
+          tangent = vec3(-sa, branchMode * ca * 0.85, 0.0);
+        }
+
+        vec3 viewTangent = mat3(modelViewMatrix) * tangent;
+        vAngle = atan(viewTangent.y, viewTangent.x);
+
+        float scrollApproach = smoothstep(0.0, 0.22, uScroll);
+        float baseStretch = mix(13.5, 1.0, scrollApproach);
+        vStretch = mix(baseStretch, 1.0, toCave);
+
+        vec4 mvPosition = modelViewMatrix * vec4(finalPos, 1.0);
+        gl_Position = projectionMatrix * mvPosition;
+
+        float grainVar = 0.8 + aSeed * 0.5;
+        float lengthBoost = mix(1.0, 5.2, (vStretch - 1.0) / 12.5);
+
+        gl_PointSize = uGrainSize * grainVar * lengthBoost * uPixelRatio * (12.0 / max(-mvPosition.z, 1.4));
+      }
+    `;
+
+      const fragmentShader = `
+      precision highp float;
+
+      varying float vBrightness;
+      varying float vSeed;
+      varying float vWhiteout;
+      varying float vFadeBlack;
+      varying float vAngle;
+      varying float vStretch;
+
+      void main() {
+        if (vFadeBlack < 0.1) discard;
+
+        // Coordenadas locales centradas [-0.5, 0.5]
+        vec2 uv = gl_PointCoord - vec2(0.5);
+
+        // Alineación tangencial con la corriente orbital
+        float cosA = cos(-vAngle);
+        float sinA = sin(-vAngle);
+        vec2 rotUV = vec2(cosA * uv.x - sinA * uv.y, sinA * uv.x + cosA * uv.y);
+
+        // Deformación de gas estirado
+        float xDist = abs(rotUV.x) * 2.0;
+        float yDist = abs(rotUV.y) * vStretch * 2.0;
+
+        // Radio elíptico continuo de gas
+        float gasDist = sqrt(xDist * xDist * 0.6 + yDist * yDist);
+        if (gasDist > 1.0) discard;
+
+        // PERFIL GAUSSIANO DE GAS / CORTINA SUAVE (Sin bordes duros):
+        float core = exp(-gasDist * gasDist * 3.8);
+        float vapor = exp(-gasDist * 2.2) * 0.45;
+        float gasAlpha = core + vapor;
+
+        // Comportamiento al acercarse a la cueva:
+        float isGrain = smoothstep(2.5, 1.0, vStretch);
+        float grainProfile = smoothstep(1.0, 0.2, length(uv) * 2.0);
+        float finalShape = mix(gasAlpha, grainProfile, isGrain);
+
+        // Brillo blanco incandescente de plasma
+        vec3 plasmaColor = vec3(1.0) * clamp(vBrightness, 0.7, 1.9);
+
+        // Multiplicado por vFadeBlack para desvanecer suavemente el 85% de partículas al final
+        float alpha = finalShape * (0.35 + 0.15 * vSeed) * vFadeBlack;
+
+        gl_FragColor = vec4(plasmaColor, alpha);
+      }
+    `;
+
+      // =========================================================================
+      // 4. INITIALIZE THREE.JS SCENE, SCROLL SYNC & UI
+      // =========================================================================
+      function getCircleTexture() {
+        const canvas = document.createElement("canvas");
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext("2d");
+
+        const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+        grad.addColorStop(0.0, "rgba(255, 255, 255, 1.0)");
+        grad.addColorStop(0.2, "rgba(255, 255, 255, 0.85)");
+        grad.addColorStop(0.55, "rgba(255, 255, 255, 0.25)");
+        grad.addColorStop(1.0, "rgba(255, 255, 255, 0.0)");
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 64, 64);
+        return new THREE.CanvasTexture(canvas);
+      }
+
+      function initExperience() {
+        const canvas = document.getElementById("webgl-canvas");
+        clock = new THREE.Clock();
+
+        scene = new THREE.Scene();
+
+        // Cámara cercana y centrada al nivel ecuatorial
+        camera = new THREE.PerspectiveCamera(
+          50,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          120,
+        );
+        camera.position.set(0.0, 0.08, 7.8);
+        camera.lookAt(0.0, 0.0, 0.0);
+
+        renderer = new THREE.WebGLRenderer({
+          canvas: canvas,
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // -------------------------------------------------------------------------
+        // 1. CAPA DE POLVO CÓSMICO (UNIVERSO CIRCULAR EN ATRACCIÓN)
+        // -------------------------------------------------------------------------
+        const starGeo = new THREE.BufferGeometry();
+        const starPos = new Float32Array(STAR_COUNT * 3);
+
+        for (let i = 0; i < STAR_COUNT; i++) {
+          const i3 = i * 3;
+          const radius = 16.0 + Math.random() * 39.0;
+          const theta = Math.random() * Math.PI * 2.0;
+          const phi = Math.acos(2.0 * Math.random() - 1.0);
+
+          starPos[i3] = radius * Math.sin(phi) * Math.cos(theta);
+          starPos[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+          starPos[i3 + 2] = radius * Math.cos(phi) - 2.5;
+
+          starOrigR[i] = radius;
+          starVel[i] = 0.035 + Math.random() * 0.065;
+        }
+
+        starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
+
+        const starMat = new THREE.PointsMaterial({
+          color: 0xffffff,
+          size: 0.14,
+          map: getCircleTexture(),
+          transparent: true,
+          opacity: 0.75,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        });
+
+        backgroundStars = new THREE.Points(starGeo, starMat);
+        backgroundStars.frustumCulled = false;
+        scene.add(backgroundStars);
+
+        // -------------------------------------------------------------------------
+        // 2. SISTEMA DE PARTÍCULAS PRINCIPAL (GARGANTUA)
+        // -------------------------------------------------------------------------
+        pointsGeometry = new THREE.BufferGeometry();
+        const attrs = buildParticleAttributes(PARTICLE_COUNT);
+
+        const dummyPos = new Float32Array(PARTICLE_COUNT * 3);
+        pointsGeometry.setAttribute(
+          "position",
+          new THREE.BufferAttribute(dummyPos, 3),
+        );
+        pointsGeometry.setAttribute(
+          "aBHParams",
+          new THREE.BufferAttribute(attrs.aBHParams, 4),
+        );
+        pointsGeometry.setAttribute(
+          "aCavePos",
+          new THREE.BufferAttribute(attrs.aCavePos, 3),
+        );
+        pointsGeometry.setAttribute(
+          "aSingularityPos",
+          new THREE.BufferAttribute(attrs.aSingularityPos, 3),
+        );
+        pointsGeometry.setAttribute(
+          "aSeed",
+          new THREE.BufferAttribute(attrs.aSeed, 1),
+        );
+        pointsGeometry.setAttribute(
+          "aClusterId",
+          new THREE.BufferAttribute(attrs.aClusterId, 1),
+        );
+
+        pointsMaterial = new THREE.ShaderMaterial({
+          vertexShader: vertexShader,
+          fragmentShader: fragmentShader,
+          uniforms: {
+            uTime: { value: 0.0 },
+            uScroll: { value: 0.0 },
+            uSpeed: { value: 1.0 },
+            uWindStrength: { value: 1.0 },
+            uGrainSize: { value: 2.0 },
+            uWavePulse: { value: 0.0 },
+            uCentralLens: { value: 1.0 },
+            uIntensity: { value: 1.2 },
+            uMouse: { value: new THREE.Vector2(-999, -999) },
+            uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+          },
+          transparent: true,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+        });
+
+        pointsMesh = new THREE.Points(pointsGeometry, pointsMaterial);
+        pointsMesh.frustumCulled = false;
+        scene.add(pointsMesh);
+
+        // -------------------------------------------------------------------------
+        // 3. LISTENERS DE INTERACCIÓN & HUD
+        // -------------------------------------------------------------------------
+        window.addEventListener("resize", onResize);
+        window.addEventListener("mousemove", onPointerMove);
+        window.addEventListener("scroll", onWindowScroll, { passive: true });
+
+        const sizeSlider = document.getElementById("size-slider");
+        if (sizeSlider) {
+          sizeSlider.addEventListener("input", (e) => {
+            const val = parseFloat(e.target.value);
+            pointsMaterial.uniforms.uGrainSize.value = val;
+            const lbl = document.getElementById("size-value");
+            if (lbl) lbl.textContent = val.toFixed(1) + "px";
+          });
+        }
+
+        const speedSlider = document.getElementById("speed-slider");
+        if (speedSlider) {
+          speedSlider.addEventListener("input", (e) => {
+            const val = parseFloat(e.target.value);
+            pointsMaterial.uniforms.uSpeed.value = val;
+            const lbl = document.getElementById("speed-value");
+            if (lbl) lbl.textContent = val.toFixed(1) + "x";
+          });
+        }
+
+        const windSlider = document.getElementById("wind-slider");
+        if (windSlider) {
+          windSlider.addEventListener("input", (e) => {
+            const val = parseFloat(e.target.value);
+            pointsMaterial.uniforms.uWindStrength.value = val;
+            const lbl = document.getElementById("wind-value");
+            if (lbl) lbl.textContent = val.toFixed(1) + "x";
+          });
+        }
+
+        const lensSlider = document.getElementById("lens-slider");
+        if (lensSlider) {
+          lensSlider.addEventListener("input", (e) => {
+            const val = parseFloat(e.target.value);
+            pointsMaterial.uniforms.uCentralLens.value = val;
+            const lbl = document.getElementById("lens-value");
+            if (lbl) lbl.textContent = val.toFixed(2) + "x";
+          });
+        }
+
+        onWindowScroll();
+        animateLoop();
+      }
+
+      function onResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        pointsMaterial.uniforms.uPixelRatio.value = Math.min(
+          window.devicePixelRatio,
+          2,
+        );
+      }
+
+      function onPointerMove(e) {
+        targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      }
+
+      function onWindowScroll() {
+        const maxScroll = Math.max(
+          1,
+          document.documentElement.scrollHeight - window.innerHeight,
+        );
+        targetScroll = Math.min(Math.max(window.scrollY / maxScroll, 0.0), 1.0);
+        updateHUDForScroll(targetScroll);
+      }
+
+      function updateHUDForScroll(s) {
+        const pct = Math.round(s * 100);
+        const pctEl = document.getElementById("scroll-pct-label");
+        if (pctEl) pctEl.textContent = `${pct}% SCROLL`;
+
+        let activeStage = 0;
+        let stageTitle = "| 01. INICIO";
+
+        if (s >= 0.28 && s < 0.62) {
+          activeStage = 1;
+          stageTitle = "| 02. PERFIL & EXPERIENCIA";
+        } else if (s >= 0.62 && s < 0.86) {
+          activeStage = 2;
+          stageTitle = "| 03. PROYECTOS";
+        } else if (s >= 0.86) {
+          activeStage = 3;
+          stageTitle = "| 04. CONTACTO";
+        }
+
+        const badgeEl = document.getElementById("stage-badge");
+        if (badgeEl) badgeEl.textContent = stageTitle;
+
+        document.querySelectorAll(".stage-btn").forEach((btn) => {
+          const idx = parseInt(btn.getAttribute("data-stage"));
+          if (idx === activeStage) {
+            btn.className =
+              "stage-btn px-3 py-1 text-[10px] font-mono rounded-full bg-white text-black font-semibold transition-all cursor-pointer";
+          } else {
+            btn.className =
+              "stage-btn px-3 py-1 text-[10px] font-mono rounded-full text-white/60 hover:text-white transition-all cursor-pointer";
+          }
+        });
+      }
+
+      window.scrollToFraction = function (fraction) {
+        const maxScroll =
+          document.documentElement.scrollHeight - window.innerHeight;
+        window.scrollTo({
+          top: fraction * maxScroll,
+          behavior: "smooth",
+        });
+      };
+
+      window.triggerGravitationalWave = function () {
+        wavePulse = 1.5;
+      };
+
+      window.copyEmail = function (email) {
+        const temp = document.createElement("input");
+        temp.value = email;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+        const lbl = document.getElementById("copy-label");
+        lbl.textContent = "¡Email Copiado!";
+        setTimeout(() => {
+          lbl.textContent = "Copiar Email";
+        }, 2000);
+      };
+
+      function animateLoop() {
+        requestAnimationFrame(animateLoop);
+
+        const elapsed = clock.getElapsedTime();
+        const currentSpeed = pointsMaterial
+          ? pointsMaterial.uniforms.uSpeed.value
+          : 1.0;
+
+        if (pointsMaterial) {
+          pointsMaterial.uniforms.uTime.value = elapsed;
+
+          // Amortiguación suave y reversible del scroll
+          currentScroll += (targetScroll - currentScroll) * 0.07;
+          pointsMaterial.uniforms.uScroll.value = currentScroll;
+
+          // Disipación del pulso gravitacional
+          if (wavePulse > 0.01) {
+            wavePulse *= 0.94;
+          } else {
+            wavePulse = 0.0;
+          }
+          pointsMaterial.uniforms.uWavePulse.value = wavePulse;
+
+          // Suavizado del cursor
+          mouse.lerp(targetMouse, 0.1);
+          pointsMaterial.uniforms.uMouse.value.copy(mouse);
+        }
+
+        // -------------------------------------------------------------------------
+        // FÍSICA DE SUCCIÓN DEL POLVO CÓSMICO HACIA LA SINGULARIDAD CENTRAL
+        // -------------------------------------------------------------------------
+        if (backgroundStars && backgroundStars.geometry.attributes.position) {
+          const starArr = backgroundStars.geometry.attributes.position.array;
+          const universeAttraction = Math.max(0.0, 1.0 - currentScroll * 2.2);
+
+          for (let i = 0; i < STAR_COUNT; i++) {
+            const i3 = i * 3;
+            let sx = starArr[i3];
+            let sy = starArr[i3 + 1];
+            let sz = starArr[i3 + 2];
+
+            const dist = Math.sqrt(sx * sx + sy * sy + sz * sz);
+
+            if (universeAttraction > 0.01) {
+              const pullSpeed =
+                starVel[i] *
+                (22.0 / Math.max(dist, 2.2)) *
+                currentSpeed *
+                universeAttraction;
+
+              const dirX = -sx / dist;
+              const dirY = -sy / dist;
+              const dirZ = -sz / dist;
+
+              starArr[i3] += dirX * pullSpeed + (-sy / dist) * pullSpeed * 0.28;
+              starArr[i3 + 1] +=
+                dirY * pullSpeed + (sx / dist) * pullSpeed * 0.28;
+              starArr[i3 + 2] += dirZ * pullSpeed;
+
+              if (dist < 2.1) {
+                const resetR = starOrigR[i];
+                const theta = Math.random() * Math.PI * 2.0;
+                const phi = Math.acos(2.0 * Math.random() - 1.0);
+                starArr[i3] = resetR * Math.sin(phi) * Math.cos(theta);
+                starArr[i3 + 1] = resetR * Math.sin(phi) * Math.sin(theta);
+                starArr[i3 + 2] = resetR * Math.cos(phi) - 2.5;
+              }
+            }
+          }
+          backgroundStars.geometry.attributes.position.needsUpdate = true;
+          backgroundStars.material.opacity = Math.max(
+            0.1,
+            0.8 * (1.0 - currentScroll * 1.4),
+          );
+        }
+
+        // -------------------------------------------------------------------------
+        // BALANCEO DE CÁMARA (FRONTAL Y CENTRADA)
+        // -------------------------------------------------------------------------
+        const caveSwayX =
+          Math.sin(elapsed * 0.45) *
+          0.12 *
+          smoothstepJS(0.35, 0.75, currentScroll);
+        const caveSwayY =
+          Math.cos(elapsed * 0.35) *
+          0.08 *
+          smoothstepJS(0.35, 0.75, currentScroll);
+
+        const targetCamX = mouse.x * 0.22 + caveSwayX;
+        const targetCamY = 0.08 + mouse.y * 0.14 + caveSwayY;
+
+        camera.position.x += (targetCamX - camera.position.x) * 0.05;
+        camera.position.y += (targetCamY - camera.position.y) * 0.05;
+        camera.position.z = 7.8;
+        camera.lookAt(0.0, 0.0, 0.0);
+
+        renderer.render(scene, camera);
+      }
+
+      function smoothstepJS(edge0, edge1, x) {
+        const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+        return t * t * (3 - 2 * t);
+      }
+
+      window.onload = initExperience;
+    </script>
+  </body>
+</html>
