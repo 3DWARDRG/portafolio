@@ -62,15 +62,15 @@
         padding: 0;
       }
 
-canvas#webgl-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 10;
-  pointer-events: none;
-}
+      canvas#webgl-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 10;
+        pointer-events: none;
+      }
 
       .hud-panel {
         background: rgba(7, 8, 12, 0.78);
@@ -91,6 +91,15 @@ canvas#webgl-canvas {
         border-color: rgba(255, 240, 215, 0.48);
         transform: translateY(-4px);
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+      }
+
+      @media (max-width: 768px) {
+        .hud-panel,
+        .cave-block-card {
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+          background: rgba(8, 9, 14, 0.94) !important;
+        }
       }
     </style>
   </head>
@@ -173,102 +182,132 @@ canvas#webgl-canvas {
     </header>
 
     <!-- Visual Controls HUD (Bottom Right) -->
-<!-- Botón Flotante Toggle & Panel de Control 3D Responsivo -->
-<div id="control-hud" class="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-50">
-  <!-- Botón Flotante (Toggle) -->
-  <button
-    id="hud-toggle-btn"
-    onclick="toggleControlHUD()"
-    class="hud-panel p-2.5 sm:px-3.5 sm:py-2 rounded-full flex items-center gap-2 text-white hover:border-white/50 transition-all shadow-xl cursor-pointer"
-    title="Configuración 3D"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-    <span class="font-mono text-xs hidden sm:inline">Ajustes 3D</span>
-    <span id="scroll-pct-label" class="font-mono text-[10px] text-zinc-400 border-l border-white/15 pl-2">0%</span>
-  </button>
+    <!-- Botón Flotante Toggle & Panel de Control 3D Responsivo -->
+    <div
+      id="control-hud"
+      class="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-50"
+    >
+      <!-- Botón Flotante (Toggle) -->
+      <button
+        id="hud-toggle-btn"
+        onclick="toggleControlHUD()"
+        class="hud-panel p-2.5 sm:px-3.5 sm:py-2 rounded-full flex items-center gap-2 text-white hover:border-white/50 transition-all shadow-xl cursor-pointer"
+        title="Configuración 3D"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4 text-amber-200"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+          />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+        </svg>
+        <span class="font-mono text-xs hidden sm:inline">Ajustes 3D</span>
+        <span
+          id="scroll-pct-label"
+          class="font-mono text-[10px] text-zinc-400 border-l border-white/15 pl-2"
+          >0%</span
+        >
+      </button>
 
-  <!-- Panel Desplegable (Responsivo: ancho adaptable en móvil y fijo en PC) -->
-  <div
-    id="hud-dropdown"
-    class="hidden absolute bottom-12 right-0 w-[calc(100vw-2rem)] max-w-xs sm:w-64 hud-panel p-4 rounded-2xl font-mono text-xs space-y-3 shadow-2xl border border-white/20 origin-bottom-right transition-all"
-  >
-    <div class="flex items-center justify-between text-[10px] text-white/50 uppercase tracking-wider border-b border-white/10 pb-2">
-      <span class="text-amber-200">Ajustes Visuales</span>
-      <button onclick="toggleControlHUD()" class="text-zinc-400 hover:text-white cursor-pointer px-1">✕</button>
-    </div>
+      <!-- Panel Desplegable (Responsivo: ancho adaptable en móvil y fijo en PC) -->
+      <div
+        id="hud-dropdown"
+        class="hidden absolute bottom-12 right-0 w-[calc(100vw-2rem)] max-w-xs sm:w-64 hud-panel p-4 rounded-2xl font-mono text-xs space-y-3 shadow-2xl border border-white/20 origin-bottom-right transition-all"
+      >
+        <div
+          class="flex items-center justify-between text-[10px] text-white/50 uppercase tracking-wider border-b border-white/10 pb-2"
+        >
+          <span class="text-amber-200">Ajustes Visuales</span>
+          <button
+            onclick="toggleControlHUD()"
+            class="text-zinc-400 hover:text-white cursor-pointer px-1"
+          >
+            ✕
+          </button>
+        </div>
 
-    <!-- Deformación Central (Lente) -->
-    <div>
-      <div class="flex justify-between text-[10px] text-white/70 mb-1">
-        <span>Deformación Lente</span>
-        <span id="lens-value" class="text-white">1.00x</span>
+        <!-- Deformación Central (Lente) -->
+        <div>
+          <div class="flex justify-between text-[10px] text-white/70 mb-1">
+            <span>Deformación Lente</span>
+            <span id="lens-value" class="text-white">1.00x</span>
+          </div>
+          <input
+            id="lens-slider"
+            type="range"
+            min="0.65"
+            max="1.45"
+            step="0.05"
+            value="1.00"
+            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+          />
+        </div>
+
+        <!-- Tamaño de Grano -->
+        <div>
+          <div class="flex justify-between text-[10px] text-white/70 mb-1">
+            <span>Tamaño Grano</span>
+            <span id="size-value" class="text-white">3.0px</span>
+          </div>
+          <input
+            id="size-slider"
+            type="range"
+            min="1.5"
+            max="5.0"
+            step="0.1"
+            value="3.0"
+            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+          />
+        </div>
+
+        <!-- Velocidad -->
+        <div>
+          <div class="flex justify-between text-[10px] text-white/70 mb-1">
+            <span>Velocidad Giro</span>
+            <span id="speed-value" class="text-white">1.0x</span>
+          </div>
+          <input
+            id="speed-slider"
+            type="range"
+            min="0.2"
+            max="2.5"
+            step="0.1"
+            value="1.0"
+            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+          />
+        </div>
+
+        <!-- Brillo -->
+        <div>
+          <div class="flex justify-between text-[10px] text-white/70 mb-1">
+            <span>Brillo Blanco</span>
+            <span id="wind-value" class="text-white">1.2x</span>
+          </div>
+          <input
+            id="wind-slider"
+            type="range"
+            min="0.5"
+            max="2.2"
+            step="0.1"
+            value="1.2"
+            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+          />
+        </div>
       </div>
-      <input
-        id="lens-slider"
-        type="range"
-        min="0.65"
-        max="1.45"
-        step="0.05"
-        value="1.00"
-        class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
-      />
     </div>
-
-    <!-- Tamaño de Grano -->
-    <div>
-      <div class="flex justify-between text-[10px] text-white/70 mb-1">
-        <span>Tamaño Grano</span>
-        <span id="size-value" class="text-white">3.0px</span>
-      </div>
-      <input
-        id="size-slider"
-        type="range"
-        min="1.5"
-        max="5.0"
-        step="0.1"
-        value="3.0"
-        class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
-      />
-    </div>
-
-    <!-- Velocidad -->
-    <div>
-      <div class="flex justify-between text-[10px] text-white/70 mb-1">
-        <span>Velocidad Giro</span>
-        <span id="speed-value" class="text-white">1.0x</span>
-      </div>
-      <input
-        id="speed-slider"
-        type="range"
-        min="0.2"
-        max="2.5"
-        step="0.1"
-        value="1.0"
-        class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
-      />
-    </div>
-
-    <!-- Brillo -->
-    <div>
-      <div class="flex justify-between text-[10px] text-white/70 mb-1">
-        <span>Brillo Blanco</span>
-        <span id="wind-value" class="text-white">1.2x</span>
-      </div>
-      <input
-        id="wind-slider"
-        type="range"
-        min="0.5"
-        max="2.2"
-        step="0.1"
-        value="1.2"
-        class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
-      />
-    </div>
-  </div>
-</div>
 
     <!-- =================================================================== -->
     <!-- PORTFOLIO SECTIONS                                                  -->
@@ -830,9 +869,12 @@ canvas#webgl-canvas {
     <!-- THREE.JS + ICONIC FRONTAL GARGANTUA + CENTRAL VOID + DUNE CAVE            -->
     <!-- ========================================================================= -->
     <script>
-      const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent) || window.innerWidth < 768;
-// Presupuesto optimizado según la potencia del dispositivo
-const PARTICLE_COUNT = isMobile ? 35000 : 90000;
+      const isMobile =
+        /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+          navigator.userAgent,
+        ) || window.innerWidth < 768;
+      // Presupuesto optimizado según la potencia del dispositivo
+      const PARTICLE_COUNT = isMobile ? 35000 : 90000;
       let scene, camera, renderer, pointsGeometry, pointsMaterial, pointsMesh;
       let clock;
       let mouse = new THREE.Vector2(-999, -999);
@@ -844,7 +886,11 @@ const PARTICLE_COUNT = isMobile ? 35000 : 90000;
       let backgroundStars;
       const starVel = new Float32Array(STAR_COUNT);
       const starOrigR = new Float32Array(STAR_COUNT);
+      // Variables globales de cámara
+      let camTargetZ = 7.8;
+      let camTargetY = 0.08;
 
+      let lastRenderedPct = -1;
       // Sintetizador ambiental Web Audio API para el botón de música
       class CosmicAmbientArpeggiator {
         constructor() {
@@ -853,7 +899,9 @@ const PARTICLE_COUNT = isMobile ? 35000 : 90000;
           this.intervalId = null;
           this.masterGain = null;
           this.delayNode = null;
-          this.scale = [349.23, 392.0, 440.0, 493.88, 523.25, 659.25, 783.99, 880.0];
+          this.scale = [
+            349.23, 392.0, 440.0, 493.88, 523.25, 659.25, 783.99, 880.0,
+          ];
           this.bassRoots = [174.61, 130.81, 196.0, 220.0];
           this.step = 0;
         }
@@ -886,7 +934,10 @@ const PARTICLE_COUNT = isMobile ? 35000 : 90000;
           lp.type = "lowpass";
           lp.frequency.setValueAtTime(isWarmPad ? 380 : 1600, now);
           gain.gain.setValueAtTime(0.0001, now);
-          gain.gain.linearRampToValueAtTime(vol, now + (isWarmPad ? 0.6 : 0.08));
+          gain.gain.linearRampToValueAtTime(
+            vol,
+            now + (isWarmPad ? 0.6 : 0.08),
+          );
           gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
           osc.connect(lp);
           lp.connect(gain);
@@ -902,7 +953,8 @@ const PARTICLE_COUNT = isMobile ? 35000 : 90000;
           this.intervalId = setInterval(() => {
             if (!this.isPlaying) return;
             if (this.step % 8 === 0) {
-              const root = this.bassRoots[(this.step / 8) % this.bassRoots.length];
+              const root =
+                this.bassRoots[(this.step / 8) % this.bassRoots.length];
               this.playNote(root, 6.0, 0.1, true);
               this.playNote(root * 1.5, 5.5, 0.05, true);
             }
@@ -922,21 +974,23 @@ const PARTICLE_COUNT = isMobile ? 35000 : 90000;
       }
 
       const cosmicAudio = new CosmicAmbientArpeggiator();
-      document.getElementById("sound-toggle-btn").addEventListener("click", () => {
-        const active = cosmicAudio.toggle();
-        const dot = document.getElementById("sound-dot");
-        const ping = document.getElementById("sound-ping");
-        const label = document.getElementById("sound-label");
-        if (active) {
-          dot.classList.replace("bg-zinc-500", "bg-amber-200");
-          ping.classList.remove("hidden");
-          label.textContent = "AUDIO AMBIENTAL: ON";
-        } else {
-          dot.classList.replace("bg-amber-200", "bg-zinc-500");
-          ping.classList.add("hidden");
-          label.textContent = "AUDIO AMBIENTAL: OFF";
-        }
-      });
+      document
+        .getElementById("sound-toggle-btn")
+        .addEventListener("click", () => {
+          const active = cosmicAudio.toggle();
+          const dot = document.getElementById("sound-dot");
+          const ping = document.getElementById("sound-ping");
+          const label = document.getElementById("sound-label");
+          if (active) {
+            dot.classList.replace("bg-zinc-500", "bg-amber-200");
+            ping.classList.remove("hidden");
+            label.textContent = "AUDIO AMBIENTAL: ON";
+          } else {
+            dot.classList.replace("bg-amber-200", "bg-zinc-500");
+            ping.classList.add("hidden");
+            label.textContent = "AUDIO AMBIENTAL: OFF";
+          }
+        });
 
       // =========================================================================
       // 2. PARTICLE ATTRIBUTE GENERATOR (SIN PORTALES MONOLÍTICOS)
@@ -1303,14 +1357,16 @@ const PARTICLE_COUNT = isMobile ? 35000 : 90000;
         // ---------------------------------------------------------------------
         // INTERACTIVE CURSOR BLACK HOLE LENSING & VOID
         // ---------------------------------------------------------------------
-        vec2 worldMouse = uMouse * vec2(6.2, 3.9);
-        float distMouse = distance(finalPos.xy, worldMouse);
-        float mouseRadius = 1.35 * (1.0 - t3 * 0.35);
-        if (distMouse < mouseRadius) {
-          float push = pow(1.0 - distMouse / mouseRadius, 2.0);
-          vec2 dir = normalize(finalPos.xy - worldMouse + vec2(0.0001));
-          finalPos.xy += dir * push * 0.85;
-          intensity += push * 0.85;
+if (uMouse.x > -50.0) {
+          vec2 worldMouse = uMouse * vec2(6.2, 3.9);
+          float distMouse = distance(finalPos.xy, worldMouse);
+          float mouseRadius = 1.35 * (1.0 - t3 * 0.35);
+          if (distMouse < mouseRadius) {
+            float push = pow(1.0 - distMouse / mouseRadius, 2.0);
+            vec2 dir = normalize(finalPos.xy - worldMouse + vec2(0.0001));
+            finalPos.xy += dir * push * 0.85;
+            intensity += push * 0.85;
+          }
         }
 
         vBrightness = mix(intensity * uGlowBoost, caveHighlight, t1);
@@ -1342,7 +1398,7 @@ const PARTICLE_COUNT = isMobile ? 35000 : 90000;
     `;
 
       const fragmentShader = `
-      precision highp float;
+      precision mediump float;
 
       varying float vBrightness;
       varying float vSeed;
@@ -1411,23 +1467,25 @@ const PARTICLE_COUNT = isMobile ? 35000 : 90000;
       }
 
       // Ajusta la distancia focal y posición Z para que Gargantua nunca se desborde en pantallas verticales
-function getResponsiveCameraConfig() {
-  const aspect = window.innerWidth / window.innerHeight;
-  const isPortrait = aspect < 1.0;
-  
-  if (isPortrait) {
-    // En móviles verticales: alejamos la cámara en Z proporcionalmente al ancho de la pantalla
-    // y ampliamos ligeramente el FOV para que las alas laterales queden dentro del marco
-    const zPos = 7.8 + (1.0 - aspect) * 7.5; // Aproximadamente Z = 11.5 a 12.5 en smartphones
-    return { fov: 55, z: zPos, y: 0.12 };
-  } else if (aspect < 1.4) {
-    // Tablets / Laptops cuadradas
-    return { fov: 52, z: 9.0, y: 0.1 };
-  } else {
-    // Monitores panorámicos de escritorio
-    return { fov: 50, z: 7.8, y: 0.08 };
-  }
-}
+      function updateCameraConfig() {
+        const aspect = window.innerWidth / window.innerHeight;
+        camera.aspect = aspect;
+
+        if (aspect < 1.0) {
+          camera.fov = 55;
+          camTargetZ = 7.8 + (1.0 - aspect) * 7.5; // Nótese el signo menos: (1.0 - aspect)
+          camTargetY = 0.12;
+        } else if (aspect < 1.4) {
+          camera.fov = 52;
+          camTargetZ = 9.0;
+          camTargetY = 0.1;
+        } else {
+          camera.fov = 50;
+          camTargetZ = 7.8;
+          camTargetY = 0.08;
+        }
+        camera.updateProjectionMatrix();
+      }
 
       function initExperience() {
         const canvas = document.getElementById("webgl-canvas");
@@ -1435,26 +1493,29 @@ function getResponsiveCameraConfig() {
 
         scene = new THREE.Scene();
 
-        const camCfg = getResponsiveCameraConfig();
-
         // Cámara cercana y centrada al nivel ecuatorial
-camera = new THREE.PerspectiveCamera(
-    camCfg.fov,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    120
-  );
-  camera.position.set(0.0, camCfg.y, camCfg.z);
+        camera = new THREE.PerspectiveCamera(
+          50,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          120,
+        );
+
+        updateCameraConfig();
+        camera.position.set(0.0, camTargetY, camTargetZ);
         camera.lookAt(0.0, 0.0, 0.0);
 
+        const targetPixelRatio = isMobile
+          ? 1.0
+          : Math.min(window.devicePixelRatio, 1.5);
         renderer = new THREE.WebGLRenderer({
           canvas: canvas,
-          antialias: true,
+          antialias: !isMobile, // Desactiva MSAA en móvil para liberar la GPU
           alpha: true,
           powerPreference: "high-performance",
+          precision: isMobile ? "mediump" : "highp", // Mali procesa FP16 al doble de velocidad
         });
 
-        const targetPixelRatio = isMobile ? 1.0 : Math.min(window.devicePixelRatio, 1.5);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(targetPixelRatio);
 
@@ -1534,12 +1595,12 @@ camera = new THREE.PerspectiveCamera(
             uScroll: { value: 0.0 },
             uSpeed: { value: 1.0 },
             uWindStrength: { value: 1.0 },
-            uGrainSize: { value: isMobile ? 3.4 : 3.0 },
+            uGrainSize: { value: isMobile ? 2.6 : 3.0 },
             uWavePulse: { value: 0.0 },
             uCentralLens: { value: 1.0 },
             uIntensity: { value: 1.2 },
             uMouse: { value: new THREE.Vector2(-999, -999) },
-            uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+            uPixelRatio: { value: targetPixelRatio },
           },
           transparent: true,
           depthWrite: false,
@@ -1601,35 +1662,18 @@ camera = new THREE.PerspectiveCamera(
         animateLoop();
       }
 
-function onResize() {
-  const aspect = window.innerWidth / window.innerHeight;
-  camera.aspect = aspect;
-  
-  const camCfg = getResponsiveCameraConfig();
-  camera.fov = camCfg.fov;
-  camera.position.z = camCfg.z;
-  camera.position.y = camCfg.y;
-  camera.updateProjectionMatrix();
+      function onResize() {
+        updateCameraConfig();
 
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-  if (pointsMaterial) {
-    pointsMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 1.5);
-  }
-}
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        const targetPixelRatio = isMobile
+          ? 1.0
+          : Math.min(window.devicePixelRatio, 1.5);
+        renderer.setPixelRatio(targetPixelRatio);
 
-      function onPointerMove(e) {
-        targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-        targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-      }
-
-      function onWindowScroll() {
-        const maxScroll = Math.max(
-          1,
-          document.documentElement.scrollHeight - window.innerHeight,
-        );
-        targetScroll = Math.min(Math.max(window.scrollY / maxScroll, 0.0), 1.0);
-        updateHUDForScroll(targetScroll);
+        if (pointsMaterial) {
+          pointsMaterial.uniforms.uPixelRatio.value = targetPixelRatio;
+        }
       }
 
       function updateHUDForScroll(s) {
@@ -1666,6 +1710,20 @@ function onResize() {
         });
       }
 
+      function onPointerMove(e) {
+        targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      }
+
+      function onWindowScroll() {
+        const maxScroll = Math.max(
+          1,
+          document.documentElement.scrollHeight - window.innerHeight,
+        );
+        targetScroll = Math.min(Math.max(window.scrollY / maxScroll, 0.0), 1.0);
+        updateHUDForScroll(targetScroll);
+      }
+
       window.scrollToFraction = function (fraction) {
         const maxScroll =
           document.documentElement.scrollHeight - window.innerHeight;
@@ -1694,6 +1752,13 @@ function onResize() {
       };
 
       function animateLoop() {
+
+        if (document.hidden) return
+        const currentPct = Math.round(currentScroll * 100);
+        if (currentPct !== lastRenderedPct) {
+          lastRenderedPct = currentPct;
+          updateHUDForScroll(currentScroll); // Solo toca el DOM si el número entero cambió
+        }
         requestAnimationFrame(animateLoop);
 
         const elapsed = clock.getElapsedTime();
@@ -1724,51 +1789,14 @@ function onResize() {
         // -------------------------------------------------------------------------
         // FÍSICA DE SUCCIÓN DEL POLVO CÓSMICO HACIA LA SINGULARIDAD CENTRAL
         // -------------------------------------------------------------------------
-        if (backgroundStars && backgroundStars.geometry.attributes.position) {
-          const starArr = backgroundStars.geometry.attributes.position.array;
-          const universeAttraction = Math.max(0.0, 1.0 - currentScroll * 2.2);
-
-          for (let i = 0; i < STAR_COUNT; i++) {
-            const i3 = i * 3;
-            let sx = starArr[i3];
-            let sy = starArr[i3 + 1];
-            let sz = starArr[i3 + 2];
-
-            const dist = Math.sqrt(sx * sx + sy * sy + sz * sz);
-
-            if (universeAttraction > 0.01) {
-              const pullSpeed =
-                starVel[i] *
-                (22.0 / Math.max(dist, 2.2)) *
-                currentSpeed *
-                universeAttraction;
-
-              const dirX = -sx / dist;
-              const dirY = -sy / dist;
-              const dirZ = -sz / dist;
-
-              starArr[i3] += dirX * pullSpeed + (-sy / dist) * pullSpeed * 0.28;
-              starArr[i3 + 1] +=
-                dirY * pullSpeed + (sx / dist) * pullSpeed * 0.28;
-              starArr[i3 + 2] += dirZ * pullSpeed;
-
-              if (dist < 2.1) {
-                const resetR = starOrigR[i];
-                const theta = Math.random() * Math.PI * 2.0;
-                const phi = Math.acos(2.0 * Math.random() - 1.0);
-                starArr[i3] = resetR * Math.sin(phi) * Math.cos(theta);
-                starArr[i3 + 1] = resetR * Math.sin(phi) * Math.sin(theta);
-                starArr[i3 + 2] = resetR * Math.cos(phi) - 2.5;
-              }
-            }
-          }
-          backgroundStars.geometry.attributes.position.needsUpdate = true;
+        if (backgroundStars) {
+          backgroundStars.rotation.z = elapsed * 0.02 * currentSpeed;
+          backgroundStars.rotation.y = elapsed * 0.01 * currentSpeed;
           backgroundStars.material.opacity = Math.max(
-            0.1,
-            0.8 * (1.0 - currentScroll * 1.4),
+            0.12,
+            0.75 * (1.0 - currentScroll * 1.5),
           );
         }
-
         // -------------------------------------------------------------------------
         // BALANCEO DE CÁMARA (FRONTAL Y CENTRADA)
         // -------------------------------------------------------------------------
@@ -1781,14 +1809,14 @@ function onResize() {
           0.08 *
           smoothstepJS(0.35, 0.75, currentScroll);
 
-const camCfg = getResponsiveCameraConfig();
-  const targetCamX = mouse.x * 0.22 + caveSwayX;
-  const targetCamY = camCfg.y + mouse.y * 0.14 + caveSwayY;
+        const targetCamX = mouse.x * 0.22 + caveSwayX;
+        const targetCamY = camTargetY + mouse.y * 0.14 + caveSwayY;
 
-camera.position.x += (targetCamX - camera.position.x) * 0.05;
-  camera.position.y += (targetCamY - camera.position.y) * 0.05;
-  camera.position.z += (camCfg.z - camera.position.z) * 0.05; // Respeta el alejamiento en móvil
-  camera.lookAt(0.0, 0.0, 0.0);
+        // Interpolación fluida sin generar basura en memoria
+        camera.position.x += (targetCamX - camera.position.x) * 0.05;
+        camera.position.y += (targetCamY - camera.position.y) * 0.05;
+        camera.position.z += (camTargetZ - camera.position.z) * 0.05;
+        camera.lookAt(0.0, 0.0, 0.0);
 
         renderer.render(scene, camera);
       }
@@ -1798,27 +1826,33 @@ camera.position.x += (targetCamX - camera.position.x) * 0.05;
         return t * t * (3 - 2 * t);
       }
 
-window.toggleControlHUD = function () {
-  const panel = document.getElementById("hud-dropdown");
-  if (!panel) return;
-  const isHidden = panel.classList.contains("hidden");
-  if (isHidden) {
-    panel.classList.remove("hidden");
-  } else {
-    panel.classList.add("hidden");
-  }
-};
+      window.toggleControlHUD = function () {
+        const panel = document.getElementById("hud-dropdown");
+        if (!panel) return;
+        const isHidden = panel.classList.contains("hidden");
+        if (isHidden) {
+          panel.classList.remove("hidden");
+        } else {
+          panel.classList.add("hidden");
+        }
+      };
 
-// Cierra el panel si el usuario hace clic fuera de él
-document.addEventListener("click", (e) => {
-  const hudContainer = document.getElementById("control-hud");
-  const panel = document.getElementById("hud-dropdown");
-  if (hudContainer && panel && !hudContainer.contains(e.target)) {
-    panel.classList.add("hidden");
+      // Cierra el panel si el usuario hace clic fuera de él
+      document.addEventListener("click", (e) => {
+        const hudContainer = document.getElementById("control-hud");
+        const panel = document.getElementById("hud-dropdown");
+        if (hudContainer && panel && !hudContainer.contains(e.target)) {
+          panel.classList.add("hidden");
+        }
+      });
+
+      document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    clock.stop();
+  } else {
+    clock.start();
   }
 });
-
-
 
       window.onload = initExperience;
     </script>
