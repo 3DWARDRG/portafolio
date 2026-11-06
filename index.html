@@ -62,18 +62,15 @@
         padding: 0;
       }
 
-      canvas#webgl-canvas {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: 10;
-        pointer-events: none;
-        filter: drop-shadow(0 0 22px rgba(255, 255, 255, 0.38))
-          drop-shadow(0 0 60px rgba(255, 255, 255, 0.18));
-        transition: filter 0.6s ease;
-      }
+canvas#webgl-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  pointer-events: none;
+}
 
       .hud-panel {
         background: rgba(7, 8, 12, 0.78);
@@ -176,91 +173,102 @@
     </header>
 
     <!-- Visual Controls HUD (Bottom Right) -->
-    <div
-      id="control-hud"
-      class="fixed bottom-5 right-5 z-50 transition-opacity duration-500"
-    >
-      <div
-        class="hud-panel p-3.5 rounded-xl w-64 font-mono text-xs space-y-2.5 shadow-2xl"
-      >
-        <div
-          class="flex items-center justify-between text-[10px] text-white/50 uppercase tracking-wider border-b border-white/10 pb-1.5"
-        >
-          <span>Ajuste Visual 3D</span>
-          <span id="scroll-pct-label" class="text-white font-semibold"
-            >0% SCROLL</span
-          >
-        </div>
+<!-- Botón Flotante Toggle & Panel de Control 3D Responsivo -->
+<div id="control-hud" class="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-50">
+  <!-- Botón Flotante (Toggle) -->
+  <button
+    id="hud-toggle-btn"
+    onclick="toggleControlHUD()"
+    class="hud-panel p-2.5 sm:px-3.5 sm:py-2 rounded-full flex items-center gap-2 text-white hover:border-white/50 transition-all shadow-xl cursor-pointer"
+    title="Configuración 3D"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+    <span class="font-mono text-xs hidden sm:inline">Ajustes 3D</span>
+    <span id="scroll-pct-label" class="font-mono text-[10px] text-zinc-400 border-l border-white/15 pl-2">0%</span>
+  </button>
 
-        <!-- Central Black Hole Lens Deformation Slider -->
-        <div>
-          <div class="flex justify-between text-[10px] text-white/70 mb-1">
-            <span>Deformación Central (Lente)</span>
-            <span id="lens-value" class="text-white">1.00x</span>
-          </div>
-          <input
-            id="lens-slider"
-            type="range"
-            min="0.65"
-            max="1.45"
-            step="0.05"
-            value="1.00"
-            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
-          />
-        </div>
-
-        <!-- Grain Size Slider -->
-        <div>
-          <div class="flex justify-between text-[10px] text-white/70 mb-1">
-            <span>Tamaño de Grano</span>
-            <span id="size-value" class="text-white">2.0px</span>
-          </div>
-          <input
-            id="size-slider"
-            type="range"
-            min="1.2"
-            max="3.8"
-            step="0.1"
-            value="2.0"
-            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
-          />
-        </div>
-
-        <!-- Cave Autonomous Flow Speed -->
-        <div>
-          <div class="flex justify-between text-[10px] text-white/70 mb-1">
-            <span>Velocidad de Animación</span>
-            <span id="speed-value" class="text-white">1.0x</span>
-          </div>
-          <input
-            id="speed-slider"
-            type="range"
-            min="0.2"
-            max="2.5"
-            step="0.1"
-            value="1.0"
-            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
-          />
-        </div>
-
-        <!-- Pure White Brightness Slider -->
-        <div>
-          <div class="flex justify-between text-[10px] text-white/70 mb-1">
-            <span>Brillo Blanco</span>
-            <span id="wind-value" class="text-white">1.2x</span>
-          </div>
-          <input
-            id="wind-slider"
-            type="range"
-            min="0.5"
-            max="2.2"
-            step="0.1"
-            value="1.2"
-            class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
-          />
-        </div>
-      </div>
+  <!-- Panel Desplegable (Responsivo: ancho adaptable en móvil y fijo en PC) -->
+  <div
+    id="hud-dropdown"
+    class="hidden absolute bottom-12 right-0 w-[calc(100vw-2rem)] max-w-xs sm:w-64 hud-panel p-4 rounded-2xl font-mono text-xs space-y-3 shadow-2xl border border-white/20 origin-bottom-right transition-all"
+  >
+    <div class="flex items-center justify-between text-[10px] text-white/50 uppercase tracking-wider border-b border-white/10 pb-2">
+      <span class="text-amber-200">Ajustes Visuales</span>
+      <button onclick="toggleControlHUD()" class="text-zinc-400 hover:text-white cursor-pointer px-1">✕</button>
     </div>
+
+    <!-- Deformación Central (Lente) -->
+    <div>
+      <div class="flex justify-between text-[10px] text-white/70 mb-1">
+        <span>Deformación Lente</span>
+        <span id="lens-value" class="text-white">1.00x</span>
+      </div>
+      <input
+        id="lens-slider"
+        type="range"
+        min="0.65"
+        max="1.45"
+        step="0.05"
+        value="1.00"
+        class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+      />
+    </div>
+
+    <!-- Tamaño de Grano -->
+    <div>
+      <div class="flex justify-between text-[10px] text-white/70 mb-1">
+        <span>Tamaño Grano</span>
+        <span id="size-value" class="text-white">3.0px</span>
+      </div>
+      <input
+        id="size-slider"
+        type="range"
+        min="1.5"
+        max="5.0"
+        step="0.1"
+        value="3.0"
+        class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+      />
+    </div>
+
+    <!-- Velocidad -->
+    <div>
+      <div class="flex justify-between text-[10px] text-white/70 mb-1">
+        <span>Velocidad Giro</span>
+        <span id="speed-value" class="text-white">1.0x</span>
+      </div>
+      <input
+        id="speed-slider"
+        type="range"
+        min="0.2"
+        max="2.5"
+        step="0.1"
+        value="1.0"
+        class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+      />
+    </div>
+
+    <!-- Brillo -->
+    <div>
+      <div class="flex justify-between text-[10px] text-white/70 mb-1">
+        <span>Brillo Blanco</span>
+        <span id="wind-value" class="text-white">1.2x</span>
+      </div>
+      <input
+        id="wind-slider"
+        type="range"
+        min="0.5"
+        max="2.2"
+        step="0.1"
+        value="1.2"
+        class="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+      />
+    </div>
+  </div>
+</div>
 
     <!-- =================================================================== -->
     <!-- PORTFOLIO SECTIONS                                                  -->
@@ -822,7 +830,9 @@
     <!-- THREE.JS + ICONIC FRONTAL GARGANTUA + CENTRAL VOID + DUNE CAVE            -->
     <!-- ========================================================================= -->
     <script>
-      const PARTICLE_COUNT = 560000;
+      const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent) || window.innerWidth < 768;
+// Presupuesto optimizado según la potencia del dispositivo
+const PARTICLE_COUNT = isMobile ? 35000 : 90000;
       let scene, camera, renderer, pointsGeometry, pointsMaterial, pointsMesh;
       let clock;
       let mouse = new THREE.Vector2(-999, -999);
@@ -830,7 +840,7 @@
       let targetScroll = 0.0;
       let currentScroll = 0.0;
       let wavePulse = 0.0;
-      const STAR_COUNT = 1500;
+      const STAR_COUNT = isMobile ? 500 : 1200;
       let backgroundStars;
       const starVel = new Float32Array(STAR_COUNT);
       const starOrigR = new Float32Array(STAR_COUNT);
@@ -1400,20 +1410,41 @@
         return new THREE.CanvasTexture(canvas);
       }
 
+      // Ajusta la distancia focal y posición Z para que Gargantua nunca se desborde en pantallas verticales
+function getResponsiveCameraConfig() {
+  const aspect = window.innerWidth / window.innerHeight;
+  const isPortrait = aspect < 1.0;
+  
+  if (isPortrait) {
+    // En móviles verticales: alejamos la cámara en Z proporcionalmente al ancho de la pantalla
+    // y ampliamos ligeramente el FOV para que las alas laterales queden dentro del marco
+    const zPos = 7.8 + (1.0 - aspect) * 7.5; // Aproximadamente Z = 11.5 a 12.5 en smartphones
+    return { fov: 55, z: zPos, y: 0.12 };
+  } else if (aspect < 1.4) {
+    // Tablets / Laptops cuadradas
+    return { fov: 52, z: 9.0, y: 0.1 };
+  } else {
+    // Monitores panorámicos de escritorio
+    return { fov: 50, z: 7.8, y: 0.08 };
+  }
+}
+
       function initExperience() {
         const canvas = document.getElementById("webgl-canvas");
         clock = new THREE.Clock();
 
         scene = new THREE.Scene();
 
+        const camCfg = getResponsiveCameraConfig();
+
         // Cámara cercana y centrada al nivel ecuatorial
-        camera = new THREE.PerspectiveCamera(
-          50,
-          window.innerWidth / window.innerHeight,
-          0.1,
-          120,
-        );
-        camera.position.set(0.0, 0.08, 7.8);
+camera = new THREE.PerspectiveCamera(
+    camCfg.fov,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    120
+  );
+  camera.position.set(0.0, camCfg.y, camCfg.z);
         camera.lookAt(0.0, 0.0, 0.0);
 
         renderer = new THREE.WebGLRenderer({
@@ -1422,8 +1453,10 @@
           alpha: true,
           powerPreference: "high-performance",
         });
+
+        const targetPixelRatio = isMobile ? 1.0 : Math.min(window.devicePixelRatio, 1.5);
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(targetPixelRatio);
 
         // -------------------------------------------------------------------------
         // 1. CAPA DE POLVO CÓSMICO (UNIVERSO CIRCULAR EN ATRACCIÓN)
@@ -1501,7 +1534,7 @@
             uScroll: { value: 0.0 },
             uSpeed: { value: 1.0 },
             uWindStrength: { value: 1.0 },
-            uGrainSize: { value: 2.0 },
+            uGrainSize: { value: isMobile ? 3.4 : 3.0 },
             uWavePulse: { value: 0.0 },
             uCentralLens: { value: 1.0 },
             uIntensity: { value: 1.2 },
@@ -1568,16 +1601,22 @@
         animateLoop();
       }
 
-      function onResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        pointsMaterial.uniforms.uPixelRatio.value = Math.min(
-          window.devicePixelRatio,
-          2,
-        );
-      }
+function onResize() {
+  const aspect = window.innerWidth / window.innerHeight;
+  camera.aspect = aspect;
+  
+  const camCfg = getResponsiveCameraConfig();
+  camera.fov = camCfg.fov;
+  camera.position.z = camCfg.z;
+  camera.position.y = camCfg.y;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  if (pointsMaterial) {
+    pointsMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 1.5);
+  }
+}
 
       function onPointerMove(e) {
         targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -1742,13 +1781,14 @@
           0.08 *
           smoothstepJS(0.35, 0.75, currentScroll);
 
-        const targetCamX = mouse.x * 0.22 + caveSwayX;
-        const targetCamY = 0.08 + mouse.y * 0.14 + caveSwayY;
+const camCfg = getResponsiveCameraConfig();
+  const targetCamX = mouse.x * 0.22 + caveSwayX;
+  const targetCamY = camCfg.y + mouse.y * 0.14 + caveSwayY;
 
-        camera.position.x += (targetCamX - camera.position.x) * 0.05;
-        camera.position.y += (targetCamY - camera.position.y) * 0.05;
-        camera.position.z = 7.8;
-        camera.lookAt(0.0, 0.0, 0.0);
+camera.position.x += (targetCamX - camera.position.x) * 0.05;
+  camera.position.y += (targetCamY - camera.position.y) * 0.05;
+  camera.position.z += (camCfg.z - camera.position.z) * 0.05; // Respeta el alejamiento en móvil
+  camera.lookAt(0.0, 0.0, 0.0);
 
         renderer.render(scene, camera);
       }
@@ -1757,6 +1797,28 @@
         const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
         return t * t * (3 - 2 * t);
       }
+
+window.toggleControlHUD = function () {
+  const panel = document.getElementById("hud-dropdown");
+  if (!panel) return;
+  const isHidden = panel.classList.contains("hidden");
+  if (isHidden) {
+    panel.classList.remove("hidden");
+  } else {
+    panel.classList.add("hidden");
+  }
+};
+
+// Cierra el panel si el usuario hace clic fuera de él
+document.addEventListener("click", (e) => {
+  const hudContainer = document.getElementById("control-hud");
+  const panel = document.getElementById("hud-dropdown");
+  if (hudContainer && panel && !hudContainer.contains(e.target)) {
+    panel.classList.add("hidden");
+  }
+});
+
+
 
       window.onload = initExperience;
     </script>
